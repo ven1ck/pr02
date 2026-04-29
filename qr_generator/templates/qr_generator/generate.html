@@ -1,0 +1,103 @@
+{% extends "qr_generator/base.html" %}
+{% block content %}
+<div class="row g-4 align-items-stretch">
+    <!-- ЛЕВАЯ КОЛОНКА: Настройки генерации -->
+    <div class="col-12 col-lg-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-primary text-white">
+                <h4 class="card-title mb-0 fs-5">Настройки генерации</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" id="qrForm">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.text.id_for_label }}" class="form-label">{{ form.text.label }}</label>
+                        {{ form.text }}
+                        {% if form.text.errors %}<div class="invalid-feedback d-block">{{ form.text.errors }}</div>{% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.size.id_for_label }}" class="form-label">{{ form.size.label }}</label>
+                        {{ form.size }}
+                        <div class="form-text">Допустимый диапазон: 200–600 пикселей</div>
+                        {% if form.size.errors %}<div class="invalid-feedback d-block">{{ form.size.errors }}</div>{% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.error_correction.id_for_label }}" class="form-label">{{ form.error_correction.label }}</label>
+                        {{ form.error_correction }}
+                        <div class="form-text">L (7%), M (15%), Q (25%), H (30%)</div>
+                        {% if form.error_correction.errors %}<div class="invalid-feedback d-block">{{ form.error_correction.errors }}</div>{% endif %}
+                    </div>
+                    
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <label for="{{ form.fg_color.id_for_label }}" class="form-label">{{ form.fg_color.label }}</label>
+                            {{ form.fg_color }}
+                            {% if form.fg_color.errors %}<div class="invalid-feedback d-block">{{ form.fg_color.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-6">
+                            <label for="{{ form.bg_color.id_for_label }}" class="form-label">{{ form.bg_color.label }}</label>
+                            {{ form.bg_color }}
+                            {% if form.bg_color.errors %}<div class="invalid-feedback d-block">{{ form.bg_color.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="{{ form.logo.id_for_label }}" class="form-label">{{ form.logo.label }}</label>
+                        {{ form.logo }}
+                        <div class="form-text">PNG или JPG, рекомендуется квадратное изображение</div>
+                        {% if form.logo.errors %}<div class="invalid-feedback d-block">{{ form.logo.errors }}</div>{% endif %}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 py-3 fs-5">Сгенерировать QR-код</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРАВАЯ КОЛОНКА: Результат -->
+    <div class="col-12 col-lg-5">
+        {% if generated_qr %}
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0 fs-5">Результат</h5>
+            </div>
+            <div class="card-body text-center d-flex flex-column align-items-center justify-content-center">
+                <div class="qr-preview mb-3 p-3 bg-body rounded">
+                    <img src="{{ generated_qr.image.url }}" alt="QR Code" class="img-fluid" style="max-width: 100%; max-height: 300px;">
+                </div>
+                <a href="{% url 'download' generated_qr.pk %}" class="btn btn-success w-100 py-3 fs-5">
+                    Скачать PNG
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <!-- Плейсхолдер, когда код ещё не сгенерирован -->
+        <div class="card shadow-sm h-100 bg-body-tertiary">
+            <div class="card-body text-center d-flex align-items-center justify-content-center" style="min-height: 420px;">
+                <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" fill="currentColor" class="bi bi-qr-code text-muted mb-3" viewBox="0 0 16 16">
+                        <path d="M2 2h2v2H2z"/><path d="M6 0v6H0V0zM5 1H1v4h4z"/><path d="M4 12H2v2h2z"/>
+                        <path d="M6 10v6H0v-6zm-5 1v4h4v-4zm11-9h2v2h-2z"/><path d="M10 0v6h6V0zm5 1H6v4h9zM8 1V0h1v2H8z"/>
+                        <path d="M0 8h2v2H0z"/><path d="M3 0h1v2H3zM8 5h2v1H8zM8 8h2v1H8z"/>
+                        <path d="M2 2h1v1H2zm2 2h1v1H4zm2 2h1v1H6zm2 2h1v1H8zm2 2h1v1h-1zm-8 0h1v1H2zm2-2h1v1H4zm2-2h1v1H6zm2-2h1v1H8z"/>
+                    </svg>
+                    <p class="text-muted fs-6 mb-0">Настройте параметры и нажмите<br><span class="fw-semibold text-body">«Сгенерировать»</span></p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    #qrForm input[type="color"] {
+        height: 48px; padding: 6px; cursor: pointer; width: 100%;
+    }
+    #qrForm input[type="color"]::-webkit-color-swatch { border: none; border-radius: 4px; }
+    #qrForm input[type="color"]::-moz-color-swatch { border: none; border-radius: 4px; }
+    #qrForm textarea { min-height: 120px; font-family: system-ui, -apple-system, sans-serif; }
+</style>
+{% endblock %}

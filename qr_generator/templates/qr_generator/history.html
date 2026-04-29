@@ -1,0 +1,46 @@
+{% extends "qr_generator/base.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0 fs-5">История генераций</h4>
+                <span class="badge bg-light text-primary">{{ qr_codes.count }}</span>
+            </div>
+            <div class="card-body p-0">
+                {% if qr_codes %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Дата</th>
+                                <th>Данные</th>
+                                <th class="text-center">Размер</th>
+                                <th class="text-center pe-3">Действие</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for qr in qr_codes %}
+                            <tr>
+                                <td class="ps-3 text-nowrap small">{{ qr.created_at|date:"d.m.Y H:i" }}</td>
+                                <td><code class="small d-block text-truncate" style="max-width: 150px;">{{ qr.text|truncatechars:40 }}</code></td>
+                                <td class="text-center"><span class="badge bg-secondary">{{ qr.size }}px</span></td>
+                                <td class="text-center pe-3">
+                                    <a href="{% url 'download' qr.pk %}" class="btn btn-sm btn-outline-primary">Скачать</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5 px-3">
+                    <p class="text-muted mb-3">Вы ещё не генерировали QR-коды.</p>
+                    <a href="{% url 'generate' %}" class="btn btn-primary">Создать первый</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
